@@ -9,7 +9,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   // TODO dispose listener
-  // RealtimeSubscription _listener;
+  var _listener;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,14 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: const Text('Chat'),
       ),
-      body: Container(),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('unsubscribe'),
+          onPressed: () {
+            _listener.unsubscribe();
+          },
+        ),
+      ),
     );
   }
 
@@ -34,13 +41,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void setupListeners() {
-    final listener = SupabaseProvider.instance
-        .from('chats')
+    _listener = SupabaseProvider.instance
+        .from('funny_memes')
         .on(SupabaseEventTypes.all, (payload) {
       print(
-          'on countries.delete: ${payload.table} ${payload.eventType} ${payload.oldRecord}');
-    }).subscribe((String event, {String errorMsg}) {
-      print('event: $event error: $errorMsg');
-    });
+          'on countries.all: ${payload.table} ${payload.eventType} ${payload.oldRecord}');
+    }).subscribe();
   }
 }

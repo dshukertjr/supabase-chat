@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:supabase/supabase.dart';
 import 'package:supabasechat/pages/chat_page.dart';
 import 'package:supabasechat/supabase_provider.dart';
 
@@ -20,6 +19,7 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   void initState() {
+    redirect();
     super.initState();
   }
 
@@ -28,11 +28,12 @@ class _SplashPageState extends State<SplashPage> {
     final supabase = SupabaseProvider.instance;
     final authUser = supabase.auth.currentUser;
     if (authUser == null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => ChatPage(),
-        ),
-      );
+      await supabase.auth.signUp('dshukertjr@gmail.com', 'somesome');
     }
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => ChatPage(),
+      ),
+    );
   }
 }
