@@ -101,4 +101,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _avatars = data.map<Avatar>((map) => Avatar.fromMap(map)).toList();
     setState(() {});
   }
+
+  Future<void> _getCurrentProfile() async {
+    final user = supabase.auth.currentUser;
+    final res =
+        await supabase.from('users').select().eq('id', user.id).execute();
+    final data = res.data;
+  }
 }
