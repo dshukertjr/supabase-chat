@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabasechat/pages/splash_page.dart';
-import 'package:supabasechat/supabase_provider.dart';
+
+import '../constants.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -94,7 +95,6 @@ class _LoginPageState extends State<LoginPage> {
     if (!_formKey.currentState.validate()) {
       return;
     }
-    final supabase = SupabaseProvider.instance;
     final email = _emailConntroller.text;
     final password = _passwordController.text;
     if (isLogin) {
@@ -105,6 +105,8 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       await supabase.auth.signUp('dshukertjr@gmail.com', 'somesome');
     }
+    final session = supabase.auth.session();
+    final authUser = supabase.auth.currentUser;
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (_) => SplashPage()));
   }

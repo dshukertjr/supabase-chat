@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase/supabase.dart';
-import 'package:supabasechat/supabase_provider.dart';
+import 'package:supabasechat/constants.dart';
 
 class ChatPage extends StatefulWidget {
   @override
@@ -41,9 +41,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void setupListeners() {
-    _listener = SupabaseProvider.instance
-        .from('funny_memes')
-        .on(SupabaseEventTypes.all, (payload) {
+    _listener =
+        supabase.from('funny_memes').on(SupabaseEventTypes.all, (payload) {
       print(
           'on countries.all: ${payload.table} ${payload.eventType} ${payload.oldRecord}');
     }).subscribe();
