@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabasechat/constants.dart';
+import 'package:supabasechat/models/avatar.dart';
 
 class EditProfilePage extends StatefulWidget {
   @override
@@ -8,6 +9,8 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController _nameController;
+  List<Avatar> _avatars;
+  Avatar _selectedAvatar;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +24,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
           horizontal: 20,
         ),
         children: [
+          DropdownButtonFormField<Avatar>(
+              items: _avatars
+                  .map<DropdownMenuItem<Avatar>>(
+                      (avatar) => DropdownMenuItem(child: Text(avatar.url)))
+                  .toList(),
+              onChanged: (selectedAvatar) {
+                setState(() {
+                  _selectedAvatar = selectedAvatar;
+                });
+              }),
           TextFormField(
             controller: _nameController,
             decoration: const InputDecoration(
@@ -52,5 +65,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _getAllAvatars() async {
     final res = await supabase.from('avatars').select().execute();
+    final data = List<Map<String, dynamic>>.from(res.data as List);
+    _avatars = data.map<Avatar>((map) => Avatar.fromMap(map)).toList();
   }
 }
