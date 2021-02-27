@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabasechat/pages/splash_page.dart';
 import 'package:supabasechat/supabase_provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,7 +19,12 @@ class _LoginPageState extends State<LoginPage> {
         title: const Text('Login'),
       ),
       body: ListView(
+        padding: const EdgeInsets.symmetric(
+          vertical: 30,
+          horizontal: 20,
+        ),
         children: [
+          const SizedBox(height: 72),
           TextFormField(
             controller: _emailConntroller,
             decoration: const InputDecoration(
@@ -31,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
               return null;
             },
           ),
+          const SizedBox(height: 24),
           TextFormField(
             controller: _passwordController,
             decoration: const InputDecoration(
@@ -43,11 +50,13 @@ class _LoginPageState extends State<LoginPage> {
               return null;
             },
           ),
+          const SizedBox(height: 24),
           ElevatedButton(
             onPressed: _login,
             child: const Text('ログイン'),
           ),
-          ElevatedButton(
+          const SizedBox(height: 24),
+          OutlineButton(
             onPressed: _register,
             child: const Text('登録'),
           ),
@@ -94,5 +103,7 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       await supabase.auth.signUp('dshukertjr@gmail.com', 'somesome');
     }
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => SplashPage()));
   }
 }
