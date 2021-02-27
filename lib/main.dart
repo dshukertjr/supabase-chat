@@ -10,19 +10,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sinple Chat App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      theme: ThemeData.dark().copyWith(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         appBarTheme: const AppBarTheme(
-          color: Colors.white,
-          iconTheme: IconThemeData(
-            color: Colors.black,
-          ),
+          centerTitle: true,
           textTheme: TextTheme(
             headline6: TextStyle(
-              color: Colors.black,
+              fontSize: 16,
             ),
           ),
+        ),
+        accentColor: Colors.teal,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(primary: Colors.teal),
         ),
       ),
       home: SplashPage(),
