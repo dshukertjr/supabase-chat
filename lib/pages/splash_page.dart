@@ -27,6 +27,8 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> redirect() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
     /// Check Auth State
     final supabase = SupabaseProvider.instance;
     final authUser = supabase.auth.currentUser;

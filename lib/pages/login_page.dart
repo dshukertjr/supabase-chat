@@ -7,8 +7,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _emailConntroller = TextEditingController();
-  final _passwordController = TextEditingController();
+  TextEditingController _emailConntroller;
+  TextEditingController _passwordController;
+  GlobalKey<FormState> _formKey;
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +21,27 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           TextFormField(
             controller: _emailConntroller,
-            decoration: InputDecoration(
-              labelText: 'メールアドレス',
+            decoration: const InputDecoration(
+              labelText: 'Email',
             ),
+            validator: (val) {
+              if (val.isEmpty) {
+                return 'Required';
+              }
+              return null;
+            },
           ),
           TextFormField(
             controller: _passwordController,
-            decoration: InputDecoration(
-              labelText: 'パスワード',
+            decoration: const InputDecoration(
+              labelText: 'Password',
             ),
+            validator: (val) {
+              if (val.isEmpty) {
+                return 'Required';
+              }
+              return null;
+            },
           ),
           ElevatedButton(
             onPressed: _login,
@@ -43,14 +56,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> _login() async {
-    final supabase = SupabaseProvider.instance;
-    await supabase.auth.signUp('dshukertjr@gmail.com', 'somesome');
-  }
-
-  Future<void> _register() async {
-    final supabase = SupabaseProvider.instance;
-    await supabase.auth.signUp('dshukertjr@gmail.com', 'somesome');
+  @override
+  void initState() {
+    _emailConntroller = TextEditingController();
+    _passwordController = TextEditingController();
+    _formKey = GlobalKey<FormState>();
+    super.initState();
   }
 
   @override
@@ -58,5 +69,27 @@ class _LoginPageState extends State<LoginPage> {
     _emailConntroller.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _login() async {
+    await _executeAuthAction(true);
+  }
+
+  Future<void> _register() async {
+    _executeAuthAction(false);
+  }
+
+  Future<void> _executeAuthAction(bool isLogin) async {
+    final supabase = SupabaseProvider.instance;
+    final email = _emailConntroller.text;
+    final password = _passwordController.text;
+    if (isLogin) {
+      await supabase.auth.signIn(
+        email: 'dshukertjr@gmail.com',
+        password: 'somesome',
+      );
+    } else {
+      await supabase.auth.signUp('dshukertjr@gmail.com', 'somesome');
+    }
   }
 }
