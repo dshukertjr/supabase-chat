@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabasechat/pages/splash_page.dart';
 
 import '../constants.dart';
@@ -97,16 +98,18 @@ class _LoginPageState extends State<LoginPage> {
     }
     final email = _emailConntroller.text;
     final password = _passwordController.text;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     if (isLogin) {
-      await supabase.auth.signIn(
+      final res = await supabase.auth.signIn(
         email: 'dshukertjr@gmail.com',
         password: 'somesome',
       );
+      prefs.setString(PERSIST_SESSION_KEY, res.data.persistSessionString);
     } else {
-      await supabase.auth.signUp('dshukertjr@gmail.com', 'somesome');
+      final res =
+          await supabase.auth.signUp('dshukertjr@gmail.com', 'somesome');
+      prefs.setString(PERSIST_SESSION_KEY, res.data.persistSessionString);
     }
-    final session = supabase.auth.session();
-    final authUser = supabase.auth.currentUser;
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (_) => SplashPage()));
   }

@@ -28,9 +28,9 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
   }
 
-  void _restoreSession() async {
+  Future<void> _restoreSession() async {
     final prefs = await SharedPreferences.getInstance();
-    bool hasSession = prefs.containsKey(PERSIST_SESSION_KEY);
+    final hasSession = prefs.containsKey(PERSIST_SESSION_KEY);
     if (!hasSession) {
       return;
     }
@@ -47,6 +47,7 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> redirect() async {
     await Future.delayed(const Duration(milliseconds: 500));
+    await _restoreSession();
 
     /// Check Auth State
     final authUser = supabase.auth.currentUser;
