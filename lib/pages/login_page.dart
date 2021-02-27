@@ -98,19 +98,17 @@ class _LoginPageState extends State<LoginPage> {
     }
     final email = _emailConntroller.text;
     final password = _passwordController.text;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     if (isLogin) {
       final res = await supabase.auth.signIn(
-        email: 'dshukertjr@gmail.com',
-        password: 'somesome',
+        email: email,
+        password: password,
       );
       prefs.setString(PERSIST_SESSION_KEY, res.data.persistSessionString);
     } else {
-      final res =
-          await supabase.auth.signUp('dshukertjr@gmail.com', 'somesome');
+      final res = await supabase.auth.signUp(email, password);
       prefs.setString(PERSIST_SESSION_KEY, res.data.persistSessionString);
     }
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (_) => SplashPage()));
+    Navigator.of(context).pushReplacement(SplashPage.route());
   }
 }

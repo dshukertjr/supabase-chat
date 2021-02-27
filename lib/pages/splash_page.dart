@@ -8,6 +8,10 @@ import 'package:supabasechat/pages/login_page.dart';
 import '../constants.dart';
 
 class SplashPage extends StatefulWidget {
+  static Route<void> route() {
+    return MaterialPageRoute(builder: (_) => SplashPage());
+  }
+
   @override
   _SplashPageState createState() => _SplashPageState();
 }
@@ -78,7 +82,7 @@ class _SplashPageState extends State<SplashPage> {
   void _redirectToEditProfilePage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => EditProfilePage(),
+        builder: (_) => const EditProfilePage(isCreatingAccount: true),
       ),
     );
   }
