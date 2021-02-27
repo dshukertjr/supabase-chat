@@ -10,7 +10,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController _emailConntroller;
   TextEditingController _passwordController;
-  GlobalKey<FormState> _formKey;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -18,49 +18,52 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: const Text('Login'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(
-          vertical: 30,
-          horizontal: 20,
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(
+            vertical: 30,
+            horizontal: 20,
+          ),
+          children: [
+            const SizedBox(height: 72),
+            TextFormField(
+              controller: _emailConntroller,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+              ),
+              validator: (val) {
+                if (val.isEmpty) {
+                  return 'Required';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 24),
+            TextFormField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+              ),
+              validator: (val) {
+                if (val.isEmpty) {
+                  return 'Required';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _login,
+              child: const Text('ログイン'),
+            ),
+            const SizedBox(height: 24),
+            OutlineButton(
+              onPressed: _register,
+              child: const Text('登録'),
+            ),
+          ],
         ),
-        children: [
-          const SizedBox(height: 72),
-          TextFormField(
-            controller: _emailConntroller,
-            decoration: const InputDecoration(
-              labelText: 'Email',
-            ),
-            validator: (val) {
-              if (val.isEmpty) {
-                return 'Required';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 24),
-          TextFormField(
-            controller: _passwordController,
-            decoration: const InputDecoration(
-              labelText: 'Password',
-            ),
-            validator: (val) {
-              if (val.isEmpty) {
-                return 'Required';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _login,
-            child: const Text('ログイン'),
-          ),
-          const SizedBox(height: 24),
-          OutlineButton(
-            onPressed: _register,
-            child: const Text('登録'),
-          ),
-        ],
       ),
     );
   }
@@ -69,7 +72,6 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     _emailConntroller = TextEditingController();
     _passwordController = TextEditingController();
-    _formKey = GlobalKey<FormState>();
     super.initState();
   }
 
