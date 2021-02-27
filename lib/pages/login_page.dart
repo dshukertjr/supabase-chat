@@ -80,6 +80,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _executeAuthAction(bool isLogin) async {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
     final supabase = SupabaseProvider.instance;
     final email = _emailConntroller.text;
     final password = _passwordController.text;
