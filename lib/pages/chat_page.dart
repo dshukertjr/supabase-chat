@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase/supabase.dart';
 import 'package:supabasechat/constants.dart';
+import 'package:supabasechat/models/message.dart';
+import 'package:supabasechat/models/user.dart';
 
 class ChatPage extends StatefulWidget {
   @override
@@ -8,7 +10,8 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  // TODO dispose listener
+  final List<Message> _messages = [];
+  final Map<String, User> _users = {};
   var _listener;
 
   @override
@@ -19,16 +22,25 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
-          const CircleAvatar(
-            child: Text('absolute'),
+          ListView.builder(
+            itemBuilder: (_, index) {
+              final message = _messages[index];
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  CircleAvatar(
+                    child: Text(_users[message.userId].name),
+                  )
+                ],
+              );
+            },
+            itemCount: _messages.length,
           ),
-          Center(
-            child: ElevatedButton(
-              child: Text('unsubscribe'),
-              onPressed: () {
-                _listener.unsubscribe();
-              },
-            ),
+          Row(
+            children: [
+              TextFormField(),
+              TextButton(onPressed: () {}, child: const Text('send'))
+            ],
           ),
         ],
       ),
@@ -43,15 +55,13 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose of listener
+    _listener.unsubscribe();
     super.dispose();
   }
 
   void setupListeners() {
-    _listener =
-        supabase.from('funny_memes').on(SupabaseEventTypes.all, (payload) {
-      print(
-          'on countries.all: ${payload.table} ${payload.eventType} ${payload.oldRecord}');
+    _listener = supabase.from('chats').on(SupabaseEventTypes.insert, (payload) {
+      payload.newRecord;
     }).subscribe();
   }
 }
