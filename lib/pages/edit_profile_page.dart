@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabasechat/constants.dart';
 import 'package:supabasechat/models/avatar.dart';
+import 'package:supabasechat/models/user.dart';
 import 'package:supabasechat/pages/splash_page.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -17,7 +18,6 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController _nameController;
-  List<Avatar> _avatars;
   Avatar _selectedAvatar;
 
   @override
@@ -32,24 +32,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           horizontal: 20,
         ),
         children: [
-          DropdownButtonFormField<Avatar>(
-            validator: (val) {
-              if (val == null) {
-                return 'Required';
-              }
-              return null;
-            },
-            items: _avatars
-                .map<DropdownMenuItem<Avatar>>(
-                    (avatar) => DropdownMenuItem(child: Text(avatar.url)))
-                .toList(),
-            onChanged: (selectedAvatar) {
-              setState(() {
-                _selectedAvatar = selectedAvatar;
-              });
-            },
-          ),
-          const SizedBox(height: 24),
           TextFormField(
             controller: _nameController,
             decoration: const InputDecoration(
@@ -71,7 +53,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   void initState() {
-    _getAllAvatars();
     _nameController = TextEditingController();
     super.initState();
   }
@@ -95,17 +76,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  Future<void> _getAllAvatars() async {
-    final res = await supabase.from('avatars').select().execute();
-    final data = List<Map<String, dynamic>>.from(res.data as List);
-    _avatars = data.map<Avatar>((map) => Avatar.fromMap(map)).toList();
-    setState(() {});
-  }
-
   Future<void> _getCurrentProfile() async {
     final user = supabase.auth.currentUser;
     final res =
         await supabase.from('users').select().eq('id', user.id).execute();
     final data = res.data;
+    final userProfile = User.fromMap(data);
+    if (userProfile != null) {
+      setState(() {
+        _nameController.text = userProfile.name;
+      });
+    }
   }
 }
