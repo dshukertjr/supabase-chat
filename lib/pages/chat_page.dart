@@ -17,13 +17,20 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: const Text('Chat'),
       ),
-      body: Center(
-        child: ElevatedButton(
-          child: Text('unsubscribe'),
-          onPressed: () {
-            _listener.unsubscribe();
-          },
-        ),
+      body: Column(
+        children: [
+          const CircleAvatar(
+            child: Text('absolute'),
+          ),
+          Center(
+            child: ElevatedButton(
+              child: Text('unsubscribe'),
+              onPressed: () {
+                _listener.unsubscribe();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
