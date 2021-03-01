@@ -25,11 +25,22 @@ class _ChatPageState extends State<ChatPage> {
           ListView.builder(
             itemBuilder: (_, index) {
               final message = _messages[index];
+              final user = _users[message.userId];
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  CircleAvatar(
-                    child: Text(_users[message.userId].name),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        child: Text(user.name),
+                      ),
+                      Flexible(
+                        child: Material(
+                          elevation: 2,
+                          child: Text(message.message),
+                        ),
+                      ),
+                    ],
                   )
                 ],
               );
