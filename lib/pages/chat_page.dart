@@ -40,6 +40,7 @@ class _ChatPageState extends State<ChatPage> {
                           child: Text(message.message),
                         ),
                       ),
+                      const Text('12m'),
                     ],
                   )
                 ],
