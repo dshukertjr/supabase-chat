@@ -20,7 +20,11 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+        primaryColor: Colors.teal,
         accentColor: Colors.teal,
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(primary: Colors.teal),
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(primary: Colors.teal),
         ),

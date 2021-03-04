@@ -5,14 +5,19 @@ import 'package:supabasechat/models/message.dart';
 import 'package:supabasechat/models/user.dart';
 
 class ChatPage extends StatefulWidget {
+  final String roomId;
+
+  const ChatPage(this.roomId, {Key key}) : super(key: key);
+
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final List<Message> _messages = [];
+  List<Message> _messages = [];
   final Map<String, User> _users = {};
   var _listener;
+  final _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +60,27 @@ class _ChatPageState extends State<ChatPage> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextFormField(),
+                  child: TextFormField(
+                    controller: _textController,
+                    decoration: const InputDecoration(
+                      hintText: 'Type your message...',
+                    ),
+                  ),
                 ),
-                TextButton(onPressed: () {}, child: const Text('send'))
+                TextButton(
+                  onPressed: () async {
+                    final user = supabase.auth.currentUser;
+                    final message = _textController.text;
+                    await supabase.from('messages').insert([
+                      {
+                        'message': message,
+                        'uid': user.id,
+                        'room_id': widget.roomId,
+                      }
+                    ]).execute();
+                  },
+                  child: const Text('send'),
+                ),
               ],
             ),
           ),
@@ -68,7 +91,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
-    setupListeners();
+    _getChats();
     super.initState();
   }
 
@@ -78,9 +101,16 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  void setupListeners() {
-    _listener = supabase.from('chats').on(SupabaseEventTypes.insert, (payload) {
-      payload.newRecord;
+  Future<void> _getChats() async {
+    final messagesTable = supabase.from('messages');
+    final snap = await messagesTable.select().execute();
+    setState(() {
+      _messages = Message.fromRows(snap.data as List);
+    });
+    _listener = messagesTable.on(SupabaseEventTypes.insert, (payload) {
+      setState(() {
+        _messages.addAll(Message.fromRows(snap.data as List));
+      });
     }).subscribe();
   }
 }

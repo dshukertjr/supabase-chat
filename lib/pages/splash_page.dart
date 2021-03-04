@@ -50,7 +50,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> redirect() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 100));
     await _restoreSession();
 
     /// Check Auth State
@@ -61,6 +61,7 @@ class _SplashPageState extends State<SplashPage> {
     }
     final snap =
         await supabase.from('users').select().eq('id', authUser.id).execute();
+    final error = snap.error;
     final data = snap.data as List<dynamic>;
     if (data.isEmpty) {
       _redirectToEditProfilePage();
@@ -89,7 +90,7 @@ class _SplashPageState extends State<SplashPage> {
   void _redirectToChatPage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => ChatPage(),
+        builder: (_) => ChatPage(''),
       ),
     );
   }
