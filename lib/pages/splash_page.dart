@@ -60,10 +60,9 @@ class _SplashPageState extends State<SplashPage> {
       return;
     }
     final snap =
-        await supabase.from('users').select().eq('uuid', authUser.id).execute();
-    final map = snap.toJson()['data'];
-    final user = User.fromMap(map);
-    if (user == null) {
+        await supabase.from('users').select().eq('id', authUser.id).execute();
+    final data = snap.data as List<dynamic>;
+    if (data.isEmpty) {
       _redirectToEditProfilePage();
       return;
     }

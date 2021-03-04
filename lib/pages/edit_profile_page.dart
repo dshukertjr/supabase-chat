@@ -18,7 +18,7 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController _nameController;
-  Avatar _selectedAvatar;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -26,27 +26,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         title: const Text('Profile'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(
-          vertical: 30,
-          horizontal: 20,
-        ),
-        children: [
-          TextFormField(
-            controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'User Name',
-            ),
-            validator: (val) {
-              if (val.isEmpty) {
-                return 'Required';
-              }
-              return null;
-            },
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(
+            vertical: 30,
+            horizontal: 20,
           ),
-          const SizedBox(height: 24),
-          ElevatedButton(onPressed: _save, child: const Text('保存'))
-        ],
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'User Name',
+              ),
+              validator: (val) {
+                if (val.isEmpty) {
+                  return 'Required';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(onPressed: _save, child: const Text('Save'))
+          ],
+        ),
       ),
     );
   }
@@ -54,6 +57,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     _nameController = TextEditingController();
+    _getCurrentProfile();
     super.initState();
   }
 
@@ -65,10 +69,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _save() async {
     final user = supabase.auth.currentUser;
-    await supabase.from('users').insert({
-      'id': user.id,
-      'avatar_id': _selectedAvatar.id,
-    }, upsert: true).execute();
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+    final name = _nameController.text;
+    await supabase.from('users').insert([
+      {
+        'id': user.id,
+        'name': name,
+      }
+    ], upsert: true).execute();
     if (widget.isCreatingAccount) {
       Navigator.of(context).pushReplacement(SplashPage.route());
     } else {
@@ -80,8 +90,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final user = supabase.auth.currentUser;
     final res =
         await supabase.from('users').select().eq('id', user.id).execute();
-    final data = res.data;
-    final userProfile = User.fromMap(data);
+    final data = res.data as List<dynamic>;
+    if (data.isEmpty) {
+      return;
+    }
+    final userProfile = User.fromMap(data.first);
     if (userProfile != null) {
       setState(() {
         _nameController.text = userProfile.name;

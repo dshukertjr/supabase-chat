@@ -22,37 +22,44 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
-          ListView.builder(
-            itemBuilder: (_, index) {
-              final message = _messages[index];
-              final user = _users[message.userId];
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        child: Text(user.name),
-                      ),
-                      Flexible(
-                        child: Material(
-                          elevation: 2,
-                          child: Text(message.message),
+          Expanded(
+            child: ListView.builder(
+              itemBuilder: (_, index) {
+                final message = _messages[index];
+                final user = _users[message.userId];
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          child: Text(user.name),
                         ),
-                      ),
-                      const Text('12m'),
-                    ],
-                  )
-                ],
-              );
-            },
-            itemCount: _messages.length,
+                        Flexible(
+                          child: Material(
+                            elevation: 2,
+                            child: Text(message.message),
+                          ),
+                        ),
+                        const Text('12m'),
+                      ],
+                    )
+                  ],
+                );
+              },
+              itemCount: _messages.length,
+            ),
           ),
-          Row(
-            children: [
-              TextFormField(),
-              TextButton(onPressed: () {}, child: const Text('send'))
-            ],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextFormField(),
+                ),
+                TextButton(onPressed: () {}, child: const Text('send'))
+              ],
+            ),
           ),
         ],
       ),
