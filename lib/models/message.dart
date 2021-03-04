@@ -1,25 +1,24 @@
 import 'package:flutter/foundation.dart';
 
 class Message {
-  final String id;
+  final int id;
   final String userId;
-  final DateTime createdAt;
+  final DateTime insertedAt;
   final String message;
 
   Message({
     @required this.id,
     @required this.userId,
-    @required this.createdAt,
+    @required this.insertedAt,
     @required this.message,
   });
 
   static List<Message> fromRows(List<dynamic> rows) {
     return rows
         .map<Message>((row) => Message(
-              id: row['id'] as String,
+              id: row['id'] as int,
               userId: row['user_id'] as String,
-              createdAt:
-                  DateTime.fromMillisecondsSinceEpoch(row['created_at'] as int),
+              insertedAt: DateTime.parse(row['inserted_at'] as String),
               message: row['message'] as String,
             ))
         .toList();

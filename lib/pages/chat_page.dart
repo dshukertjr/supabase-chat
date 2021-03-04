@@ -5,7 +5,7 @@ import 'package:supabasechat/models/message.dart';
 import 'package:supabasechat/models/user.dart';
 
 class ChatPage extends StatefulWidget {
-  final String roomId;
+  final int roomId;
 
   const ChatPage(this.roomId, {Key key}) : super(key: key);
 
@@ -17,7 +17,6 @@ class _ChatPageState extends State<ChatPage> {
   List<Message> _messages = [];
   final Map<String, User> _users = {};
   var _listener;
-  final _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -55,35 +54,7 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: _messages.length,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _textController,
-                    decoration: const InputDecoration(
-                      hintText: 'Type your message...',
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    final user = supabase.auth.currentUser;
-                    final message = _textController.text;
-                    await supabase.from('messages').insert([
-                      {
-                        'message': message,
-                        'uid': user.id,
-                        'room_id': widget.roomId,
-                      }
-                    ]).execute();
-                  },
-                  child: const Text('send'),
-                ),
-              ],
-            ),
-          ),
+          _MessageInput(roomId: widget.roomId),
         ],
       ),
     );
@@ -109,8 +80,76 @@ class _ChatPageState extends State<ChatPage> {
     });
     _listener = messagesTable.on(SupabaseEventTypes.insert, (payload) {
       setState(() {
-        _messages.addAll(Message.fromRows(snap.data as List));
+        _messages.addAll(Message.fromRows(payload.newRecord as List));
       });
     }).subscribe();
+  }
+}
+
+class _MessageInput extends StatefulWidget {
+  const _MessageInput({
+    Key key,
+    @required this.roomId,
+  }) : super(key: key);
+
+  final int roomId;
+
+  @override
+  __MessageInputState createState() => __MessageInputState();
+}
+
+class __MessageInputState extends State<_MessageInput> {
+  TextEditingController _textController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: _textController,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Type your message...',
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final user = supabase.auth.currentUser;
+              final message = _textController.text;
+              final result = await supabase.from('messages').insert([
+                {
+                  'message': message,
+                  'user_id': user.id,
+                  'room_id': widget.roomId,
+                }
+              ]).execute();
+              if (result.error != null) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Error occured'),
+                ));
+              }
+              _textController.clear();
+            },
+            child: const Text('send'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    _textController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
   }
 }

@@ -90,7 +90,7 @@ class _SplashPageState extends State<SplashPage> {
   void _redirectToChatPage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => ChatPage(''),
+        builder: (_) => ChatPage(1),
       ),
     );
   }
