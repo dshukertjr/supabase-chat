@@ -14,19 +14,20 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         appBarTheme: const AppBarTheme(
           centerTitle: true,
+          color: Colors.black,
           textTheme: TextTheme(
             headline6: TextStyle(
               fontSize: 16,
             ),
           ),
         ),
-        primaryColor: Colors.teal,
-        accentColor: Colors.teal,
+        primaryColor: Colors.amber,
+        accentColor: Colors.amber,
         textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(primary: Colors.teal),
+          style: TextButton.styleFrom(primary: Colors.amber),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(primary: Colors.teal),
+          style: ElevatedButton.styleFrom(primary: Colors.amber),
         ),
       ),
       home: SplashPage(),

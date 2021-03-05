@@ -46,6 +46,8 @@ class _SplashPageState extends State<SplashPage> {
       return;
     }
 
+    await supabase.auth.refreshSession();
+
     prefs.setString(PERSIST_SESSION_KEY, response.data.persistSessionString);
   }
 
