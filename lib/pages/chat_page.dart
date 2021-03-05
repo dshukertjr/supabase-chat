@@ -19,6 +19,7 @@ class _ChatPageState extends State<ChatPage> {
   List<Message> _messages = [];
   final Map<String, User> _users = {};
   var _listener;
+  bool _isLoading = true;
 
   @override
   Widget build(BuildContext context) {
@@ -27,66 +28,70 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: const Text('Chat'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemBuilder: (_, index) {
-                final message = _messages[index];
-                final user = _users[message.userId];
-                final isMyChat = user.id == message.userId;
-                List<Widget> chatContents = [
-                  if (!isMyChat) ...[
-                    CircleAvatar(
-                      radius: 25,
-                      child: Text(user.name),
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                  Flexible(
-                    child: Material(
-                      borderRadius: BorderRadius.circular(8),
-                      color: isMyChat
-                          ? Theme.of(context).accentColor
-                          : Colors.black,
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    reverse: true,
+                    itemBuilder: (_, index) {
+                      final message = _messages[index];
+                      final user = _users[message.userId];
+                      final isMyChat = user.id == message.userId;
+                      List<Widget> chatContents = [
+                        if (!isMyChat) ...[
+                          CircleAvatar(
+                            radius: 25,
+                            child: Text(user.name),
+                          ),
+                          const SizedBox(width: 12),
+                        ],
+                        Flexible(
+                          child: Material(
+                            borderRadius: BorderRadius.circular(8),
+                            color: isMyChat
+                                ? Theme.of(context).accentColor
+                                : Colors.black,
+                            elevation: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              child: Text(message.message),
+                            ),
+                          ),
                         ),
-                        child: Text(message.message),
-                      ),
-                    ),
+                        const SizedBox(width: 12),
+                        Text(
+                          timeago.format(message.insertedAt,
+                              locale: 'en_short'),
+                        ),
+                      ];
+                      if (isMyChat) {
+                        chatContents = chatContents.reversed.toList();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 12,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: isMyChat
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
+                          children: chatContents,
+                        ),
+                      );
+                    },
+                    itemCount: _messages.length,
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    timeago.format(message.insertedAt, locale: 'en_short'),
-                  ),
-                ];
-                if (isMyChat) {
-                  chatContents = chatContents.reversed.toList();
-                }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 12,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: isMyChat
-                        ? MainAxisAlignment.end
-                        : MainAxisAlignment.start,
-                    children: chatContents,
-                  ),
-                );
-              },
-              itemCount: _messages.length,
+                ),
+                _MessageInput(roomId: widget.roomId),
+              ],
             ),
-          ),
-          _MessageInput(roomId: widget.roomId),
-        ],
-      ),
     );
   }
 
@@ -103,10 +108,13 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _getChats() async {
-    final messagesTable = supabase.from('messages');
     final usersTable = supabase.from('users');
-    final snap =
-        await messagesTable.select().eq('room_id', widget.roomId).execute();
+    final snap = await supabase
+        .from('messages')
+        .select()
+        .eq('room_id', widget.roomId)
+        .order('inserted_at', ascending: true)
+        .execute();
     final messages = Message.fromRows(snap.data as List);
     final userFutures = messages
         .map(
@@ -120,9 +128,13 @@ class _ChatPageState extends State<ChatPage> {
     }
     setState(() {
       _messages = messages;
+      _isLoading = false;
     });
-    _listener = messagesTable.on(SupabaseEventTypes.insert, (payload) {
-      if (payload.newRecord[0]['room_id'] == widget.roomId) {
+    _listener = supabase
+        .from('messages:room_id=eq.${widget.roomId}')
+        .on(SupabaseEventTypes.insert, (payload) {
+      final isCurrentRoom = payload.newRecord[0]['room_id'] == widget.roomId;
+      if (isCurrentRoom) {
         setState(() {
           _messages.addAll(Message.fromRows(payload.newRecord as List));
         });

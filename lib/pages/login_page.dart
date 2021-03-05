@@ -57,12 +57,12 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _login,
-              child: const Text('ログイン'),
+              child: const Text('Sign In'),
             ),
             const SizedBox(height: 24),
-            OutlineButton(
+            OutlinedButton(
               onPressed: _register,
-              child: const Text('登録'),
+              child: const Text('Register'),
             ),
           ],
         ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabasechat/models/user.dart';
 import 'package:supabasechat/pages/chat_page.dart';
 import 'package:supabasechat/pages/edit_profile_page.dart';
 import 'package:supabasechat/pages/login_page.dart';
@@ -46,8 +45,6 @@ class _SplashPageState extends State<SplashPage> {
       return;
     }
 
-    await supabase.auth.refreshSession();
-
     prefs.setString(PERSIST_SESSION_KEY, response.data.persistSessionString);
   }
 
@@ -64,6 +61,10 @@ class _SplashPageState extends State<SplashPage> {
     final snap =
         await supabase.from('users').select().eq('id', authUser.id).execute();
     final error = snap.error;
+    if (error != null) {
+      print(error);
+      return;
+    }
     final data = snap.data as List<dynamic>;
     if (data.isEmpty) {
       _redirectToEditProfilePage();
