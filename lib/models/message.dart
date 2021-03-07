@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:supabasechat/models/user.dart';
 
 class Message {
   final int id;
   final String userId;
+  final User user;
   final DateTime insertedAt;
   final String message;
   final bool isSending;
@@ -10,6 +12,7 @@ class Message {
   Message({
     @required this.id,
     @required this.userId,
+    this.user,
     @required this.insertedAt,
     @required this.message,
     this.isSending = false,
