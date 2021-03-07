@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:supabasechat/constants.dart';
-import 'package:supabasechat/models/avatar.dart';
 import 'package:supabasechat/models/user.dart';
 import 'package:supabasechat/pages/splash_page.dart';
 

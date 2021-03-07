@@ -8,6 +8,10 @@ import 'package:supabasechat/pages/profile_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class ChatPage extends StatefulWidget {
+  static Route<void> route(int roomId) {
+    return MaterialPageRoute(builder: (_) => ChatPage(roomId));
+  }
+
   final int roomId;
 
   const ChatPage(this.roomId, {Key key}) : super(key: key);

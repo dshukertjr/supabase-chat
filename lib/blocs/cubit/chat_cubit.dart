@@ -32,5 +32,6 @@ class ChatCubit extends Cubit<ChatState> {
     for (final room in rooms) {
       _users[room.lastMessage.user.id] = room.lastMessage.user;
     }
+    emit(ChatLoaded(rooms: _rooms));
   }
 }
