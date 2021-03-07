@@ -29,4 +29,24 @@ create table public.messages (
   room_id bigint references public.rooms not null
 );
 comment on table public.messages is 'Individual messages sent by each user.';
+
+create view recent_chats as
+select
+  rooms.id,
+  rooms.name,
+  messages.id as message_id,
+  messages.inserted_at as message_inserted_at,
+  messages.message,
+  messages.user_id,
+  users.name as user_name
+from
+  rooms
+  join messages on rooms.id = messages.room_id
+  join users on messages.user_id = users.id
+WHERE messages.inserted_at = 
+  (SELECT MAX(m2.inserted_at)
+  FROM messages m2
+  WHERE m2.room_id = messages.room_id);
+comment on view public.recent_chats is 'List of recent chats in each rooms';
+
 ```

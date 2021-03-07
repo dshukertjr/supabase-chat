@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabasechat/pages/chat_page.dart';
 import 'package:supabasechat/pages/edit_profile_page.dart';
 import 'package:supabasechat/pages/login_page.dart';
+import 'package:supabasechat/pages/rooms_page.dart';
 
 import '../constants.dart';
 
@@ -71,7 +71,7 @@ class _SplashPageState extends State<SplashPage> {
       return;
     }
 
-    _redirectToChatPage();
+    _redirectToRoomsPage();
   }
 
   void _redirectToLoginPage() {
@@ -90,10 +90,10 @@ class _SplashPageState extends State<SplashPage> {
     );
   }
 
-  void _redirectToChatPage() {
+  void _redirectToRoomsPage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => ChatPage(1),
+        builder: (_) => RoomsPage(),
       ),
     );
   }
