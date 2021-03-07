@@ -3,6 +3,7 @@ import 'package:supabase/supabase.dart';
 import 'package:supabasechat/constants.dart';
 import 'package:supabasechat/models/message.dart';
 import 'package:supabasechat/models/user.dart';
+import 'package:supabasechat/pages/profile_page.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -34,6 +35,7 @@ class _ChatPageState extends State<ChatPage> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     reverse: true,
                     itemBuilder: (_, index) {
                       final message = _messages[index];
@@ -41,9 +43,15 @@ class _ChatPageState extends State<ChatPage> {
                       final isMyChat = user.id == message.userId;
                       List<Widget> chatContents = [
                         if (!isMyChat) ...[
-                          CircleAvatar(
-                            radius: 25,
-                            child: Text(user.name),
+                          InkWell(
+                            onTap: () {
+                              Navigator.of(context)
+                                  .push(ProfilePage.route(user));
+                            },
+                            child: CircleAvatar(
+                              radius: 25,
+                              child: Text(user.name),
+                            ),
                           ),
                           const SizedBox(width: 12),
                         ],
@@ -131,8 +139,8 @@ class _ChatPageState extends State<ChatPage> {
         .execute();
     final messages = Message.fromRows(snap.data as List);
     final userFutures = messages
-        .map(
-            (message) => usersTable.select().eq('id', message.userId).execute())
+        .map((message) =>
+            usersTable.select().eq('id', message.userId).limit(200).execute())
         .toList();
     final userSnaps = await Future.wait(userFutures);
     final users =
