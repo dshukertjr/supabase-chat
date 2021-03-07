@@ -21,13 +21,13 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        primaryColor: Colors.amber,
-        accentColor: Colors.amber,
+        primaryColor: Colors.orange,
+        accentColor: Colors.orange,
         textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(primary: Colors.amber),
+          style: TextButton.styleFrom(primary: Colors.orange),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(primary: Colors.amber),
+          style: ElevatedButton.styleFrom(primary: Colors.orange),
         ),
       ),
       home: SplashPage(),

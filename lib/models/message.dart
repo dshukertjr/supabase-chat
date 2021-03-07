@@ -5,12 +5,14 @@ class Message {
   final String userId;
   final DateTime insertedAt;
   final String message;
+  final bool isSending;
 
   Message({
     @required this.id,
     @required this.userId,
     @required this.insertedAt,
     @required this.message,
+    this.isSending = false,
   });
 
   static List<Message> fromRows(List<dynamic> rows) {

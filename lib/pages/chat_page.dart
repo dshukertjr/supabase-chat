@@ -28,12 +28,12 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: const Text('Chat'),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
+      body: Column(
+        children: [
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
                     reverse: true,
                     itemBuilder: (_, index) {
                       final message = _messages[index];
@@ -64,10 +64,17 @@ class _ChatPageState extends State<ChatPage> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Text(
-                          timeago.format(message.insertedAt,
-                              locale: 'en_short'),
-                        ),
+                        if (message.isSending)
+                          const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 1),
+                          )
+                        else
+                          Text(
+                            timeago.format(message.insertedAt,
+                                locale: 'en_short'),
+                          ),
                       ];
                       if (isMyChat) {
                         chatContents = chatContents.reversed.toList();
@@ -88,10 +95,17 @@ class _ChatPageState extends State<ChatPage> {
                     },
                     itemCount: _messages.length,
                   ),
-                ),
-                _MessageInput(roomId: widget.roomId),
-              ],
-            ),
+          ),
+          _MessageInput(
+            roomId: widget.roomId,
+            onSend: (message) {
+              setState(() {
+                _messages.insert(0, message);
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -113,7 +127,7 @@ class _ChatPageState extends State<ChatPage> {
         .from('messages')
         .select()
         .eq('room_id', widget.roomId)
-        .order('inserted_at', ascending: true)
+        .order('inserted_at')
         .execute();
     final messages = Message.fromRows(snap.data as List);
     final userFutures = messages
@@ -133,12 +147,12 @@ class _ChatPageState extends State<ChatPage> {
     _listener = supabase
         .from('messages:room_id=eq.${widget.roomId}')
         .on(SupabaseEventTypes.insert, (payload) {
-      final isCurrentRoom = payload.newRecord[0]['room_id'] == widget.roomId;
-      if (isCurrentRoom) {
-        setState(() {
-          _messages.addAll(Message.fromRows(payload.newRecord as List));
-        });
-      }
+      _messages.removeWhere((message) => message.isSending);
+      _messages.insertAll(
+        0,
+        Message.fromRows([payload.newRecord as Map<String, dynamic>].toList()),
+      );
+      setState(() {});
     }).subscribe();
   }
 }
@@ -147,9 +161,11 @@ class _MessageInput extends StatefulWidget {
   const _MessageInput({
     Key key,
     @required this.roomId,
+    @required this.onSend,
   }) : super(key: key);
 
   final int roomId;
+  final void Function(Message) onSend;
 
   @override
   __MessageInputState createState() => __MessageInputState();
@@ -160,42 +176,56 @@ class __MessageInputState extends State<_MessageInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.black,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: _textController,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Type your message...',
+    return SafeArea(
+      child: Material(
+        color: Colors.black,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  maxLines: null,
+                  controller: _textController,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Type your message...',
+                  ),
                 ),
               ),
-            ),
-            TextButton(
-              onPressed: () async {
-                final user = supabase.auth.currentUser;
-                final message = _textController.text;
-                final result = await supabase.from('messages').insert([
-                  {
-                    'message': message,
-                    'user_id': user.id,
-                    'room_id': widget.roomId,
+              TextButton(
+                onPressed: () async {
+                  final message = _textController.text;
+                  if (message.isEmpty) {
+                    return;
                   }
-                ]).execute();
-                if (result.error != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Error occured'),
-                  ));
-                }
-                _textController.clear();
-              },
-              child: const Text('send'),
-            ),
-          ],
+                  final user = supabase.auth.currentUser;
+                  final sendingMessage = Message(
+                    id: 0,
+                    userId: user.id,
+                    insertedAt: DateTime.now(),
+                    message: message,
+                    isSending: true,
+                  );
+                  widget.onSend(sendingMessage);
+                  final result = await supabase.from('messages').insert([
+                    {
+                      'message': message,
+                      'user_id': user.id,
+                      'room_id': widget.roomId,
+                    }
+                  ]).execute();
+                  if (result.error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Error occured'),
+                    ));
+                  }
+                  _textController.clear();
+                },
+                child: const Text('send'),
+              ),
+            ],
+          ),
         ),
       ),
     );
