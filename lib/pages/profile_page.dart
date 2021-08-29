@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabasechat/models/user.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage(this.user, {Key key}) : super(key: key);
+  const ProfilePage(this.user, {Key? key}) : super(key: key);
 
   static Route<void> route(User user) {
     return MaterialPageRoute(builder: (_) => ProfilePage(user));
